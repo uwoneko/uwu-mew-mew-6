@@ -1,3 +1,10 @@
+// This file is part of uwu mew mew 6.
+//
+// uwu mew mew 6 is free software: you can redistribute it and/or modify it under the terms of the Affero GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
+//
+// uwu mew mew 6 is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the Affero GNU General Public License for more details.
+//
+// You should have received a copy of the Affero GNU General Public License along with uwu mew mew 6. If not, see <https://www.gnu.org/licenses/>.
 #![feature(panic_info_message)]
 
 use std::collections::{HashMap, HashSet};
@@ -102,8 +109,8 @@ lazy_static! {
     ]);
 
     static ref TOKEN_LIMITS: HashMap<&'static str, usize> = HashMap::from([
-        ("gpt-4-0314", 8192),
-        ("gpt-4-0613", 8192),
+        ("gpt-4-0314", 4096),
+        ("gpt-4-0613", 4096),
         ("gpt-4-1106-preview", 128000),
         ("gpt-4-0125-preview", 128000),
         ("gpt-4-vision-preview", 128000),
@@ -310,7 +317,7 @@ async fn ai(ctx: &Context, data: &Data, user_message: &Message) -> Result<(), Er
             m
         }).collect();
     }
-    
+
     let mut user_messages = messages.clone();
 
     let character = get_character(user_data.current_conversation.character.as_str(), &user_data).ok_or("could not find the character")?;
@@ -354,7 +361,7 @@ async fn ai(ctx: &Context, data: &Data, user_message: &Message) -> Result<(), Er
 
     let mut tokens = approx_token_count(&messages);
     let initial_token_count = tokens;
-    while tokens + 100 > model.token_limit {
+    while tokens + 10 > model.token_limit {
         if let Some(index) = messages.iter().position(|msg| {
             matches!(msg.role(), Role::User | Role::Assistant)
         }) {
@@ -1529,6 +1536,7 @@ impl EventHandler for Handler {
             match result {
                 Ok(_) => {}
                 Err(error) => {
+                    error!("[{}] {}", msg.author.name, error);
                     let _ = msg.reply(&ctx, format!("an error occured: {}\nif this keeps happening, contact support", error)).await;
                 }
             };
