@@ -860,7 +860,7 @@ async fn component_interaction(ctx: &Context, interaction: &ComponentInteraction
         "ai-stop" => {
             let mut ai_generation = data.ai_generations.get(interaction.message.id).await?;
             if ai_generation.user != interaction.user.id {
-                interaction.create_response(&ctx, CreateInteractionResponse::Acknowledge).await?;
+                send_system_reply(ctx, interaction, &user_data, "notyour").await?;
                 return Ok(());
             }
             ai_generation.stopped = true;
@@ -870,6 +870,10 @@ async fn component_interaction(ctx: &Context, interaction: &ComponentInteraction
         }
         "ai-delete" => {
             let ai_generation = data.ai_generations.get(interaction.message.id).await?;
+            if ai_generation.user != interaction.user.id {
+                send_system_reply(ctx, interaction, &user_data, "notyour").await?;
+                return Ok(());
+            }
             for message in ai_generation.messages {
                 message.delete(&ctx).await?;
             }

@@ -285,6 +285,14 @@ pub fn get_system_phrase(id: &str, character_id: &str) -> Option<&'static str> {
                 _ => "Character imported successfully.",
             })
         }
+        "notyour" => {
+            Some(match character_id {
+                "uwu-mew-mew" | "uwu-mew-mew-lite" => "Owo! That is not youw message mastew...",
+                "ema" => "Don't try to mess with other people's messages, dweeb.",
+                "lordpandaspace" => "I-i am so s-sorry, i-i can't let you touch other people's messages... Sorry...",
+                _ => "You cannot do that.",
+            })
+        }
         _ => { None }
     }
 }
