@@ -597,7 +597,7 @@ fn create_settings_components(user_data: &UserData, page: usize) -> Vec<CreateAc
         ("claude-3-haiku-20240229", "📷 Smallest claude model, better than 3.5."),
         // ("gpt-4-vision-preview", "📷 1106 with image support."),
         ("gpt-4-0125-preview", "More censored than 1106 but less lazy."),
-        ("gpt-4-0314", "First GPT-4 model. Probably use 0613 instead."),
+        // ("gpt-4-0314", "First GPT-4 model. Probably use 0613 instead."),
         ("gpt-3.5-turbo", "Complete garbage model."),
     ];
     let model_select_menu = CreateSelectMenu::new("ai-settings-model", CreateSelectMenuKind::String {
