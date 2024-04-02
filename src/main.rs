@@ -204,28 +204,6 @@ fn approx_token_count<T>(messages: &Vec<T>) -> usize
     tokens
 }
 
-fn is_textish_mime_type(mime_type: &str) -> bool {
-    if mime_type.starts_with("text/") {
-        return true;
-    }
-
-    matches!(mime_type,
-        "application/json" |
-        "application/xml" |
-        "application/yaml" |
-        "application/x-yaml" |
-        "application/toml" |
-        "application/x-toml" |
-        "application/javascript" |
-        "application/ecmascript" |
-        "application/x-javascript" |
-        "application/x-ecmascript" |
-        "application/csv" |
-        "application/x-csv" |
-        "application/tsv" |
-        "application/x-tsv")
-}
-
 async fn ai(ctx: &Context, data: &Data, user_message: &Message) -> Result<(), Error> {
     let mut user_data = data.user_database.get(user_message.author.id).await?;
 
