@@ -239,12 +239,12 @@ async fn ai(ctx: &Context, data: &Data, user_message: &Message) -> Result<(), Er
 
     for attachment in &user_message.attachments {
         if let Some(mime_type) = &attachment.content_type {
-            if !is_textish_mime_type(mime_type) {
-                let mime = match Mime::from_str(mime_type) { 
-                    Ok(mime) => mime,
-                    _ => continue
-                };
-                let charset = match mime.get_param("charset") { 
+            let mime = match Mime::from_str(mime_type) {
+                Ok(mime) => mime,
+                _ => continue
+            };
+            if mime.type_() != mime::TEXT {
+                let charset = match mime.get_param("charset") {
                     Some(charset) => charset,
                     _ => continue
                 };
