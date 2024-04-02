@@ -353,8 +353,10 @@ async fn ai(ctx: &Context, data: &Data, user_message: &Message) -> Result<(), Er
     let mut request = CreateChatCompletionRequestArgs::default()
         .model(user_data.current_conversation.model.clone())
         .messages(messages.clone().into_iter().map(|m| m.into()).collect::<Vec<ChatCompletionRequestMessage>>())
-        .temperature(1.0)
-        .top_p(0.8)
+        .temperature(user_data.model_settings.temperature)
+        .top_p(user_data.model_settings.top_p)
+        .frequency_penalty(user_data.model_settings.frequency_penalty)
+        .presence_penalty(user_data.model_settings.presence_penalty)
         .build()?;
     if let ModelType::Claude = model.model_type {
         request.max_tokens = Some(2000);
@@ -631,6 +633,7 @@ fn create_settings_components(user_data: &UserData, page: usize) -> Vec<CreateAc
         CreateActionRow::Buttons(vec![
             CreateButton::new("ai-settings-userdescription").label("Edit user description").style(ButtonStyle::Success),
             CreateButton::new("ai-settings-scenario").label("Edit scenario").style(ButtonStyle::Success),
+            CreateButton::new("ai-settings-modelsettings").label("Edit model settings").style(ButtonStyle::Success),
             CreateButton::new("ai-settings-embed").label("Toggle embed").style(if user_data.use_embed { ButtonStyle::Success } else { ButtonStyle::Danger })
         ]),
         CreateActionRow::Buttons(vec![
@@ -939,6 +942,24 @@ async fn component_interaction(ctx: &Context, interaction: &ComponentInteraction
 
             let reply = if user_data.use_embed {"settings-embed-on"} else {"settings-embed-off"};
             send_system_followup(ctx, interaction, &user_data, reply).await?;
+        }
+        "ai-settings-modelsettings" => {
+            let modal = CreateModal::new("ai-settings-modelsettings-modal", "Change model settings")
+                .components(vec![
+                    CreateActionRow::InputText(CreateInputText::new(InputTextStyle::Short, "Temperature", "temperature")
+                        .placeholder("Randomness, higher values mean less preferred tokens more likely")
+                        .value(user_data.model_settings.temperature.to_string())),
+                    CreateActionRow::InputText(CreateInputText::new(InputTextStyle::Short, "Top P", "top_p")
+                        .placeholder("Cuts off unlikely tokens, higher means more tokens get cut off")
+                        .value(user_data.model_settings.top_p.to_string())),
+                    CreateActionRow::InputText(CreateInputText::new(InputTextStyle::Short, "Frequency Penalty (not recommended)", "frequency_penalty")
+                        .placeholder("Punishes the model for repeating the same token")
+                        .value(user_data.model_settings.frequency_penalty.to_string())),
+                    CreateActionRow::InputText(CreateInputText::new(InputTextStyle::Short, "Presence Penalty (not recommended)", "presence_penalty")
+                        .placeholder("Punishes the model for saying tokens that appeared in the text before")
+                        .value(user_data.model_settings.presence_penalty.to_string())),
+                ]);
+            interaction.create_response(&ctx, CreateInteractionResponse::Modal(modal)).await?;
         }
         "ai-charactereditor" => {
             send_character_editor(ctx, Interaction::Component(interaction.clone()), data, user_data).await?;
@@ -1354,6 +1375,15 @@ async fn modal_interaction(ctx: &Context, interaction: &ModalInteraction, data: 
             edit.execute(ctx, &character_editor.interaction_token).await?;
 
             send_system_reply(ctx, interaction, &user_data, "charactereditor-edit").await?;
+        }
+        "ai-settings-modelsettings-modal" => {
+            user_data.model_settings.temperature = inputs[0].parse()?;
+            user_data.model_settings.top_p = inputs[1].parse()?;
+            user_data.model_settings.frequency_penalty = inputs[2].parse()?;
+            user_data.model_settings.presence_penalty = inputs[3].parse()?;
+            data.user_database.set(user_id, &user_data).await?;
+
+            send_system_reply(ctx, interaction, &user_data, "settings-modelsettings").await?;
         }
         _ => return Err("interaction id not found".into())
     }

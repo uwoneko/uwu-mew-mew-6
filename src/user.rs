@@ -22,7 +22,9 @@ pub struct UserData {
     #[serde(default)]
     pub character_editor: CharacterEditorData,
     #[serde(default)]
-    pub settings: SettingsData
+    pub settings: SettingsData,
+    #[serde(default)]
+    pub model_settings: ModelSettings,
 }
 
 impl Default for UserData {
@@ -39,6 +41,7 @@ impl Default for UserData {
             use_embed: true,
             character_editor: Default::default(),
             settings: Default::default(),
+            model_settings: Default::default(),
         }
     }
 }
@@ -61,6 +64,25 @@ pub struct CharacterEditorData {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct SettingsData {
     pub page: usize
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ModelSettings {
+    pub temperature: f32,
+    pub top_p: f32,
+    pub frequency_penalty: f32,
+    pub presence_penalty: f32,
+}
+
+impl Default for ModelSettings {
+    fn default() -> Self {
+        Self {
+            temperature: 1.0,
+            top_p: 0.8,
+            frequency_penalty: 0.0,
+            presence_penalty: 0.0,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]

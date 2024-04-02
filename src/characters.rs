@@ -213,6 +213,14 @@ pub fn get_system_phrase(id: &str, character_id: &str) -> Option<&'static str> {
                 _ => "Scenario set.",
             })
         }
+        "settings-modelsettings" => {
+            Some(match character_id {
+                "uwu-mew-mew" | "uwu-mew-mew-lite" => "Uwu! Saved, nya!",
+                "ema" => "I have no idea what any of that means, hah. Saved.",
+                "lordpandaspace" => "O-of course, saved...",
+                _ => "Saved.",
+            })
+        }
         "settings-embed-on" => {
             Some(match character_id {
                 "uwu-mew-mew" | "uwu-mew-mew-lite" => "Mrow! Switched embeds on~",
