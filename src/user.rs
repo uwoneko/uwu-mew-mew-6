@@ -32,7 +32,7 @@ impl Default for UserData {
         Self {
             current_conversation: Conversation {
                 messages: vec![],
-                model: "gpt-4-0613".to_string(),
+                model: "".to_string(),
                 character: "uwu-mew-mew-lite".to_string(),
             },
             characters: vec![],

@@ -207,6 +207,18 @@ fn approx_token_count<T>(messages: &Vec<T>) -> usize
 async fn ai(ctx: &Context, data: &Data, user_message: &Message) -> Result<(), Error> {
     let mut user_data = data.user_database.get(user_message.author.id).await?;
 
+    if user_data.current_conversation.model.is_empty() {
+        if let Channel::Guild(channel) = user_message.channel(&ctx).await? {
+            user_data.current_conversation.model = if channel.name.contains("turbo") {
+                "gpt-4-1106-preview".to_string()
+            } else if channel.name.contains("claude") {
+                "claude-3-sonnet-20240229".to_string()
+            } else {
+                "gpt-4-0613".to_string()
+            }
+        }
+    }
+
     if DISALLOWED_MODELS.contains(&user_data.current_conversation.model.as_str()) {
         user_data.current_conversation.model = "gpt-4-0613".to_string();
     }
